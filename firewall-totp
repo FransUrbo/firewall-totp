@@ -1,5 +1,37 @@
 #!/bin/bash
 
+PIDFILE="pid"
+
+if [ "${1}" == "stop" -a -f "${PIDFILE}" ]; then
+	echo -n "Stopping $(basename "${0}"): "
+	kill "$(cat "${PIDFILE}")"
+	rm "${PIDFILE}"
+	echo "done."
+
+	exit 0
+elif [ "${1}" == "status" ]; then
+	if [ -e "${PIDFILE}" ]; then
+		echo "Running with pid: $(cat "${PIDFILE}")"
+	else
+		echo "Not running"
+	fi
+
+	exit 0
+elif [ -n "${STY}" -a "${1}" == "start" ]; then
+	echo -n "Starting $(basename "${0}"): "
+	nohup env -i "${0}" running > /dev/null 2>&1 &
+	echo "done."
+
+	exit 0
+elif [ -z "${1}" ]; then
+	echo "Usage: $(basename "${0}") <start|stop>"
+	exit 1
+else
+	echo "$$" > "${PIDFILE}"
+fi
+
+# ======================================================
+
 shopt -s extglob
 
 secret=MRC5GV4S64PTPJY5
