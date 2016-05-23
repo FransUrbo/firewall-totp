@@ -1,6 +1,12 @@
 #!/bin/bash
 
+shopt -s extglob
+
+secret=MRC5GV4S64PTPJY5
+DEST_IP="192.168.69.8"
 PIDFILE="pid"
+
+# ======================================================
 
 if [ "${1}" == "stop" -a -f "${PIDFILE}" ]; then
 	echo -n "Stopping $(basename "${0}"): "
@@ -31,11 +37,6 @@ else
 fi
 
 # ======================================================
-
-shopt -s extglob
-
-secret=MRC5GV4S64PTPJY5
-DEST_IP="192.168.69.8"
 
 while /bin/true; do
       password=$(oathtool --totp --base32 --time-step-size=30s "${secret}")
