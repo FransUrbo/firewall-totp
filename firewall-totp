@@ -1,0 +1,28 @@
+#!/bin/bash
+
+shopt -s extglob
+
+secret=MRC5GV4S64PTPJY5
+DEST_IP="192.168.69.8"
+
+while /bin/true; do
+      password=$(oathtool --totp --base32 --time-step-size=30s "${secret}")
+
+      # Remove all leading zeros and limit string to four numbers
+      port="$(echo "${password##+(0)}" | cut -c 1-4)"
+
+      if [ "${old_password}" != "${password}" ]; then
+	      if [ -n "${old_port}" ]; then
+echo		      iptables -t nat -D PREROUTING -p tcp --dport "${old_port}" -j REDIRECT --to-port 22 --to "${DEST_IP}"
+echo		      iptables -t nat -D PREROUTING -p udp --dport "${old_port}" -j REDIRECT --to-port 22 --to "${DEST_IP}"
+	      fi
+
+echo	      iptables -t nat -A PREROUTING -p tcp --dport "${port}" -j REDIRECT --to-port 22 --to "${DEST_IP}"
+echo	      iptables -t nat -A PREROUTING -p udp --dport "${port}" -j REDIRECT --to-port 22 --to "${DEST_IP}"
+
+	      old_password="${password}"
+	      old_port="${port}"
+      fi
+
+      sleep 5
+done
